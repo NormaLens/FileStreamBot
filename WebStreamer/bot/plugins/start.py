@@ -12,7 +12,6 @@ db = Database(Var.DATABASE_URL, Var.SESSION_NAME)
 START_TEXT = """
 <i>👋 Hᴇʏ,</i>{}\n
 <i>I'm Telegram Files Streaming Bot As Well Direct Links Generator</i>\n
-<i>👤 Total Users: {}</i>\n
 <i>Cʟɪᴄᴋ ᴏɴ Hᴇʟᴘ ᴛᴏ ɢᴇᴛ ᴍᴏʀᴇ ɪɴғᴏʀᴍᴀᴛɪᴏɴ</i>\n
 <i><u>𝗪𝗔𝗥𝗡𝗜𝗡𝗚 🚸</u></i>
 <b>🔞 Pʀᴏɴ ᴄᴏɴᴛᴇɴᴛꜱ ʟᴇᴀᴅꜱ ᴛᴏ ᴘᴇʀᴍᴀɴᴇɴᴛ ʙᴀɴ ʏᴏᴜ.</b>\n\n"""
@@ -65,7 +64,7 @@ ABOUT_BUTTONS = InlineKeyboardMarkup(
 async def cb_data(bot, update):
     if update.data == "home":
         await update.message.edit_text(
-            text=START_TEXT.format(update.from_user.mention, await db.total_users_count()),
+            text=START_TEXT.format(update.from_user.mention),
             disable_web_page_preview=True,
             reply_markup=START_BUTTONS
         )
@@ -108,7 +107,7 @@ async def start(b, m):
     usr_cmd = m.text.split("_")[-1]
     if usr_cmd == "/start":
         await m.reply_text(
-            text=START_TEXT.format(m.from_user.mention, await db.total_users_count()),
+            text=START_TEXT.format(m.from_user.mention),
             parse_mode="HTML",
             disable_web_page_preview=True,
             reply_markup=START_BUTTONS
