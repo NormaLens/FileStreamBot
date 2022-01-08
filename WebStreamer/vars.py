@@ -33,9 +33,4 @@ class Var(object):
     DATABASE_URL = str(getenv('DATABASE_URL'))
     UPDATES_CHANNEL = str(getenv('UPDATES_CHANNEL', "TeleXBots"))
 
-    if getenv('FORCE_UPDATES_CHANNEL') == "True":
-        FORCE_UPDATES_CHANNEL = True
-    else:
-        FORCE_UPDATES_CHANNEL = False
-
     BANNED_CHANNELS = list(set(int(x) for x in str(getenv("BANNED_CHANNELS", "-1001296894100")).split()))
