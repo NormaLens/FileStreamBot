@@ -93,10 +93,6 @@ async def start(b, m):
                 parse_mode="markdown",
                 disable_web_page_preview=True
             )
-        await b.send_message(
-                Var.BIN_CHANNEL,
-                f"**Banned User** [{m.from_user.first_name}](tg://user?id={m.from_user.id}) **Trying to Access the bot \n User ID: {m.chat.id,}**"
-             )
         return
     if not await db.is_user_exist(m.from_user.id):
         await db.add_user(m.from_user.id)
@@ -131,36 +127,13 @@ async def start(b, m):
 <b>🚸 Nᴏᴛᴇ : Lɪɴᴋ ᴇxᴘɪʀᴇᴅ ɪɴ 24 ʜᴏᴜʀꜱ</b>\n
 <i>🍃 Bᴏᴛ Mᴀɪɴᴛᴀɪɴᴇᴅ Bʏ :</i> <b>@DeekshithSH</b>
 """
-        msgs_text ="""
-<i><u>𝗬𝗼𝘂𝗿 𝗟𝗶𝗻𝗸 𝗚𝗲𝗻𝗲𝗿𝗮𝘁𝗲𝗱 !</u></i>\n
-<b>📂 Fɪʟᴇ ɴᴀᴍᴇ :</b> <i>{}</i>\n
-<b>📦 Fɪʟᴇ ꜱɪᴢᴇ :</b> <i>{}</i>\n
-<b>📥 Dᴏᴡɴʟᴏᴀᴅ :</b> <i>{}</i>\n
-<b>🌐 Stream Page :</b> <i>{}</i>\n
-<b>🚸 Nᴏᴛᴇ : Lɪɴᴋ ᴇxᴘɪʀᴇᴅ ɪɴ 24 ʜᴏᴜʀꜱ</b>\n
-<i>🍃 Bᴏᴛ Mᴀɪɴᴛᴀɪɴᴇᴅ Bʏ :</i> <b>@DeekshithSH</b>
-"""
-
-        if Var.PAGE_LINK:
-            media_type = get_media_mime_type(get_msg)
-            page_link = "https://{}/?id={}&type={}".format(Var.PAGE_LINK, get_msg.message_id, media_type)
-            
-            await m.reply_text(
-                text=msgs_text.format(file_name, file_size, stream_link, page_link),
-                parse_mode="HTML", 
-                disable_web_page_preview=True,
-                reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("Dᴏᴡɴʟᴏᴀᴅ ɴᴏᴡ 📥", url=stream_link)]]),
-                quote=True
-            )
-        else:
-            await m.reply_text(
-                text=msg_text.format(file_name, file_size, stream_link),
-                parse_mode="HTML", 
-                disable_web_page_preview=True,
-                reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("Dᴏᴡɴʟᴏᴀᴅ ɴᴏᴡ 📥", url=stream_link)]]),
-                quote=True
-            )
-
+        await m.reply_text(
+            text=msg_text.format(file_name, file_size, stream_link),
+            parse_mode="HTML",
+            disable_web_page_preview=True,
+            reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("Dᴏᴡɴʟᴏᴀᴅ ɴᴏᴡ 📥", url=stream_link)]]),
+            quote=True
+        )
 
 
 @StreamBot.on_message(filters.private & filters.command(["about"]))
@@ -182,10 +155,6 @@ async def help_handler(bot, message):
                 parse_mode="markdown",
                 disable_web_page_preview=True
             )
-        await bot.send_message(
-                Var.BIN_CHANNEL,
-                f"**Banned User** [{message.from_user.first_name}](tg://user?id={message.from_user.id}) **Trying to Access the bot \n User ID: {message.chat.id,}**"
-             )
         return
     if not await db.is_user_exist(message.from_user.id):
         await db.add_user(message.from_user.id)
@@ -199,51 +168,3 @@ async def help_handler(bot, message):
         disable_web_page_preview=True,
         reply_markup=HELP_BUTTONS
         )
-
-# ----------------------------- for me you can remove below line -------------------------------------------------------
-
-SETTINGS_TEXT = """
-<b>Settings</b>
-<i>🔸No Settings Available</i>
-"""
-
-@StreamBot.on_message(filters.private & filters.command("settings"))
-async def start(b, m):
-    if await db.is_user_banned(m.from_user.id):
-        await b.send_message(
-                chat_id=m.chat.id,
-                text="__Sᴏʀʀʏ Sɪʀ, Yᴏᴜ ᴀʀᴇ Bᴀɴɴᴇᴅ ᴛᴏ ᴜsᴇ ᴍᴇ. Cᴏɴᴛᴀᴄᴛ ᴛʜᴇ Dᴇᴠᴇʟᴏᴘᴇʀ__\n\n @DeekshithSH **Tʜᴇʏ Wɪʟʟ Hᴇʟᴘ Yᴏᴜ**",
-                parse_mode="markdown",
-                disable_web_page_preview=True
-            )
-        await b.send_message(
-                Var.BIN_CHANNEL,
-                f"**Banned User** [{m.from_user.first_name}](tg://user?id={m.from_user.id}) **Trying to Access the bot \n User ID: {m.chat.id,}**"
-             )
-    else:
-        if not await db.is_user_exist(m.from_user.id):
-            await db.add_user(m.from_user.id)
-            await b.send_message(
-                Var.BIN_CHANNEL,
-                f"**Nᴇᴡ Usᴇʀ Jᴏɪɴᴇᴅ:** \n\n__Mʏ Nᴇᴡ Fʀɪᴇɴᴅ__ [{m.from_user.first_name}](tg://user?id={m.from_user.id}) __Sᴛᴀʀᴛᴇᴅ Yᴏᴜʀ Bᴏᴛ !!__"
-            )
-        await m.reply_text(
-            text=SETTINGS_TEXT,
-            parse_mode="HTML",
-            disable_web_page_preview=True,
-              )
-@StreamBot.on_message(filters.command('ytdl') & filters.private & ~filters.edited)
-async def start(b, m):
-    await b.send_message(
-        chat_id=m.chat.id,
-        text="Hi\nI Removed ytdl command You can use Other Bots\n@oitubebot",
-        parse_mode="markdown",
-        disable_web_page_preview=True
-    )
-
-@StreamBot.on_message(filters.command('getid') & filters.private & ~filters.edited)
-async def start(b, m):
-    await b.send_message(
-        chat_id=m.chat.id,
-        text=f"Your ID is: {m.chat.id}"
-    )

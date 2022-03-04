@@ -19,14 +19,6 @@ msg_text ="""
 <b>📥 Dᴏᴡɴʟᴏᴀᴅ :</b> <i>{}</i>\n
 <b>🚸 Nᴏᴛᴇ : Tʜɪs ᴘᴇʀᴍᴀɴᴇɴᴛ Lɪɴᴋ, Nᴏᴛ Exᴘɪʀᴇᴅ</b>\n"""
 
-msgs_text ="""
-<i><u>𝗬𝗼𝘂𝗿 𝗟𝗶𝗻𝗸 𝗚𝗲𝗻𝗲𝗿𝗮𝘁𝗲𝗱 !</u></i>\n
-<b>📂 Fɪʟᴇ ɴᴀᴍᴇ :</b> <i>{}</i>\n
-<b>📦 Fɪʟᴇ ꜱɪᴢᴇ :</b> <i>{}</i>\n
-<b>📥 Dᴏᴡɴʟᴏᴀᴅ :</b> <i>{}</i>\n
-<b>🌐 Stream Page :</b> <i>{}</i>\n
-<b>🚸 Nᴏᴛᴇ : Tʜɪs ᴘᴇʀᴍᴀɴᴇɴᴛ Lɪɴᴋ, Nᴏᴛ Exᴘɪʀᴇᴅ</b>\n"""
-
 @StreamBot.on_message(filters.private & (filters.document | filters.video | filters.audio) & ~filters.edited, group=4)
 async def private_receive_handler(c: Client, m: Message):
     # Check The User is Banned or Not
@@ -37,10 +29,6 @@ async def private_receive_handler(c: Client, m: Message):
                 parse_mode="markdown",
                 disable_web_page_preview=True
             )
-        await c.send_message(
-                Var.BIN_CHANNEL,
-                f"**Banned User** [{m.from_user.first_name}](tg://user?id={m.from_user.id}) **Trying to Access the bot \n User ID: {m.chat.id,}**"
-             )
         return
     if not await db.is_user_exist(m.from_user.id):
         await db.add_user(m.from_user.id)
@@ -53,10 +41,6 @@ async def private_receive_handler(c: Client, m: Message):
         file_name = get_media_file_name(log_msg)
         file_size = humanbytes(get_media_file_size(log_msg))
 
-        if Var.PAGE_LINK:
-            media_type = get_media_mime_type(log_msg)
-            # media_type=mimetype(file_name)
-            page_link = "https://{}/?id={}&type={}".format(Var.PAGE_LINK, log_msg.message_id, media_type)
         stream_link = "https://{}/{}/{}".format(Var.FQDN, log_msg.message_id, file_name) if Var.ON_HEROKU or Var.NO_PORT else \
             "http://{}:{}/{}/{}".format(Var.FQDN,
                                     Var.PORT,
@@ -64,22 +48,13 @@ async def private_receive_handler(c: Client, m: Message):
                                     file_name)
 
         await log_msg.reply_text(text=f"**RᴇQᴜᴇꜱᴛᴇᴅ ʙʏ :** [{m.from_user.first_name}](tg://user?id={m.from_user.id})\n**Uꜱᴇʀ ɪᴅ :** `{m.from_user.id}`\n**Dᴏᴡɴʟᴏᴀᴅ ʟɪɴᴋ :** {stream_link}", disable_web_page_preview=True, parse_mode="Markdown", quote=True)
-        if Var.PAGE_LINK:
-            await m.reply_text(
-                text=msgs_text.format(file_name, file_size, stream_link, page_link),
-                parse_mode="HTML", 
-                disable_web_page_preview=True,
-                reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("Dᴏᴡɴʟᴏᴀᴅ ɴᴏᴡ 📥", url=stream_link)]]),
-                quote=True
-            )
-        else:
-            await m.reply_text(
-                text=msg_text.format(file_name, file_size, stream_link),
-                parse_mode="HTML", 
-                disable_web_page_preview=True,
-                reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("Dᴏᴡɴʟᴏᴀᴅ ɴᴏᴡ 📥", url=stream_link)]]),
-                quote=True
-            )
+        await m.reply_text(
+            text=msg_text.format(file_name, file_size, stream_link),
+            parse_mode="HTML",
+            disable_web_page_preview=True,
+            reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("Dᴏᴡɴʟᴏᴀᴅ ɴᴏᴡ 📥", url=stream_link)]]),
+            quote=True
+        )
     except FloodWait as e:
         print(f"Sleeping for {str(e.x)}s")
         await asyncio.sleep(e.x)
