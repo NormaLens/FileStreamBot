@@ -7,6 +7,7 @@ import math
 import logging
 import secrets
 import mimetypes
+import traceback
 from aiohttp import web
 from aiohttp.http_exceptions import BadStatusLine
 from WebStreamer.bot import multi_clients, work_loads
@@ -70,13 +71,17 @@ async def stream_handler(request: web.Request):
             secure_hash = request.rel_url.query.get("hash")
         return await media_streamer(request, message_id, secure_hash)
     except InvalidHash as e:
+        logging.error('InvalidHash: ',traceback.format_exc())
         raise web.HTTPForbidden(text=e.message)
     except FIleNotFound as e:
+        logging.error('FIleNotFound: ',traceback.format_exc())
         raise web.HTTPNotFound(text=e.message)
     except (AttributeError, BadStatusLine, ConnectionResetError):
+        logging.error('AttributeError: ',traceback.format_exc())
         pass
     except Exception as e:
-        logging.critical(e.with_traceback(None))
+        logging.error('AttributeError: ',traceback.format_exc())
+        # logging.critical(e.with_traceback(None))
         raise web.HTTPInternalServerError(text=str(e))
 
 class_cache = {}
