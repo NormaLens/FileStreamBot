@@ -12,6 +12,7 @@ from aiohttp.http_exceptions import BadStatusLine
 from WebStreamer.bot import multi_clients, work_loads
 from WebStreamer.server.exceptions import FIleNotFound, InvalidHash
 from WebStreamer import Var, utils, StartTime, __version__, StreamBot
+from WebStreamer.utils.render_template import render_page
 
 
 routes = web.RouteTableDef()
@@ -22,7 +23,6 @@ async def root_route_handler(_):
         {
             "server_status": "running",
             "uptime": utils.get_readable_time(time.time() - StartTime),
-            "telegram_bot": "@" + StreamBot.username,
             "connected_bots": len(multi_clients),
             "loads": dict(
                 ("bot" + str(c + 1), l)
@@ -34,6 +34,27 @@ async def root_route_handler(_):
         }
     )
 
+@routes.get(r"/watch/{path:\S+}", allow_head=True)
+async def stream_handler(request: web.Request):
+    try:
+        path = request.match_info["path"]
+        match = re.search(r"^([a-zA-Z0-9_-]{6})(\d+)$", path)
+        if match:
+            secure_hash = match.group(1)
+            message_id = int(match.group(2))
+        else:
+            message_id = int(re.search(r"(\d+)(?:\/\S+)?", path).group(1))
+            secure_hash = request.rel_url.query.get("hash")
+        return web.Response(text=await render_page(message_id, secure_hash), content_type='text/html')
+    except InvalidHash as e:
+        raise web.HTTPForbidden(text=e.message)
+    except FIleNotFound as e:
+        raise web.HTTPNotFound(text=e.message)
+    except (AttributeError, BadStatusLine, ConnectionResetError):
+        pass
+    except Exception as e:
+        logging.critical(e.with_traceback(None))
+        raise web.HTTPInternalServerError(text=str(e))
 
 @routes.get(r"/{path:\S+}", allow_head=True)
 async def stream_handler(request: web.Request):
@@ -105,7 +126,6 @@ async def media_streamer(request: web.Request, message_id: int, secure_hash: str
 
     mime_type = file_id.mime_type
     file_name = file_id.file_name
-    disposition = "attachment"
     if mime_type:
         if not file_name:
             try:
@@ -118,8 +138,6 @@ async def media_streamer(request: web.Request, message_id: int, secure_hash: str
         else:
             mime_type = "application/octet-stream"
             file_name = f"{secrets.token_hex(2)}.unknown"
-    if "video/" in mime_type or "audio/" in mime_type:
-        disposition = "inline"
     return_resp = web.Response(
         status=206 if range_header else 200,
         body=body,
@@ -127,7 +145,7 @@ async def media_streamer(request: web.Request, message_id: int, secure_hash: str
             "Content-Type": f"{mime_type}",
             "Range": f"bytes={from_bytes}-{until_bytes}",
             "Content-Range": f"bytes {from_bytes}-{until_bytes}/{file_size}",
-            "Content-Disposition": f'{disposition}; filename="{file_name}"',
+            "Content-Disposition": f'attachment; filename="{file_name}"',
             "Accept-Ranges": "bytes",
         },
     )

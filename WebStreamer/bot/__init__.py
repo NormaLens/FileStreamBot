@@ -10,11 +10,9 @@ StreamBot = Client(
     session_name="WebStreamer",
     api_id=Var.API_ID,
     api_hash=Var.API_HASH,
-    workdir="WebStreamer",
-    plugins={"root": "WebStreamer/bot/plugins"},
     bot_token=Var.BOT_TOKEN,
     sleep_threshold=Var.SLEEP_THRESHOLD,
-    workers=Var.WORKERS,
+    no_updates=True
 )
 
 multi_clients = {}
